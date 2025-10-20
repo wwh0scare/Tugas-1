@@ -33,3 +33,20 @@ Route::middleware(['auth', 'role:pasien'])->prefix('pasien')->group(function () 
         return view('pasien.dashboard');
     })->name('pasien.dashboard');
 });
+
+    Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function(){
+        Route::get('/dashboard', function () {
+         return view('admin.dashboard');
+    })->name('admin.dashboard');
+        Route::resource('polis', PoliController::class);
+});
+
+Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
+    Route::get('/dashboard', function () {
+        return view('admin.dashboard');
+    })->name('admin.dashboard');
+    Route::resource('polis', PoliController::class);
+    Route::resource('dokters', DokterController::class);
+    Route::resource('pasien', PasienController::class);
+    Route::resource('obat', ObatController::class);
+});
