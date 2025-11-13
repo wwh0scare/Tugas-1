@@ -3,22 +3,36 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use App\Models\User;
+use Illuminate\Support\Facades\Hash;
+use App\Models\Poli;
 
 class AuthController extends Controller
 {
+    // Menampilkan halaman login
     public function showLogin()
     {
-        return view ('auth.login');
+        return view('auth.login');
     }
 
+    // Menampilkan halaman register
+    public function showRegister()
+    {
+        return view('auth.register');
+    }
+
+    // Login
     public function login(Request $request)
     {
         $credentials = $request->only('email', 'password');
 
-        if (Auth::attempt($credentials)){
+        if (Auth::attempt($credentials)) {
+            $request->session()->regenerate(); // Regenerate session untuk keamanan
+
             $user = Auth::user();
 
-            if ($user->role == 'admin'){
+            if ($user->role == 'admin') {
                 return redirect()->route('admin.dashboard');
             } elseif ($user->role == 'dokter') {
                 return redirect()->route('dokter.dashboard');
@@ -27,21 +41,22 @@ class AuthController extends Controller
             }
         }
 
-        return back()->withErrors(['email'=> 'Email atau Password salah !']);
+        return back()->withErrors(['email' => 'Email atau Password salah!'])->withInput();
     }
 
+    // Register
     public function register(Request $request)
     {
         $request->validate([
-            'nama'=> ['required', 'string', 'max:225' ],
-            'alamat'=> ['required', 'string', 'max:225' ],
-            'no_ktp'=> ['required', 'string', 'max:30' ],
-            'no_hp'=> ['required', 'string', 'max:20' ],
-            'email'=> ['required', 'string', 'email', 'max:225', 'unique:users,email' ],
-            'nama'=> ['required', 'confirmed' ],
+            'nama' => ['required', 'string', 'max:255'],
+            'alamat' => ['required', 'string', 'max:255'],
+            'no_ktp' => ['required', 'string', 'max:30'],
+            'no_hp' => ['required', 'string', 'max:20'],
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email'],
+            'password' => ['required', 'confirmed', 'min:6'],
         ]);
 
-        user::create([
+        User::create([
             'nama' => $request->nama,
             'alamat' => $request->alamat,
             'no_ktp' => $request->no_ktp,
@@ -50,7 +65,23 @@ class AuthController extends Controller
             'password' => Hash::make($request->password),
             'role' => 'pasien',
         ]);
+
+        return redirect()->route('login')->with('success', 'Registrasi berhasil, silakan login!');
+    }
+
+    // Logout
+    public function logout(Request $request)
+    {
+        Auth::logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
         return redirect()->route('login');
     }
 
+    public function dokter()
+    {
+        $data = Poli::with('dokters')->get();
+        return $data;
+    }
 }

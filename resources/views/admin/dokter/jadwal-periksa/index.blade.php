@@ -1,4 +1,4 @@
-<x-layouts.app title="Data Pasien">
+<x-layouts.app title="Jadwal Periksa">
     <div class="container-fluid px-4 mt-4">
         <div class="row">
             <div class="col-lg-12">
@@ -11,42 +11,42 @@
                     </div>
                 @endif
 
-                <h1 class="mb-4">Data Pasien</h1>
+                <h1 class="mb-4">Jadwal Periksa</h1>
 
-                <a href="{{ route('admin.pasien.create') }}" class="btn btn-primary mb-3">
-                    <i class="fas fa-plus"></i> Tambah Pasien
+                <a href="{{ route('jadwal-periksa.create') }}" class="btn btn-primary mb-3">
+                    <i class="fas fa-plus"></i> Tambah Jadwal Periksa
                 </a>
 
                 <div class="table-responsive">
                     <table class="table table-bordered">
                         <thead class="thead-light">
                             <tr>
-                                <th>Nama Pasien</th>
-                                <th>Email</th>
-                                <th>No. KTP</th>
-                                <th>No. HP</th>
-                                <th>Alamat</th>
+                                <th>ID</th>
+                                <th>Hari</th>
+                                <th>Jam Mulai</th>
+                                <th>Jam Selesai</th>
                                 <th style="width: 150px;">Aksi</th>
                             </tr>
                         </thead>
                         <tbody>
-                            @forelse ($pasiens as $pasien)
+                            @forelse ($jadwalPeriksas as $jadwalPeriksa)
                                 <tr>
-                                    <td>{{ $pasien->nama }}</td>
-                                    <td>{{ $pasien->email }}</td>
-                                    <td>{{ $pasien->no_ktp }}</td>
-                                    <td>{{ $pasien->no_hp }}</td>
-                                    <td>{{ $pasien->alamat }}</td>
+                                    <td>{{ $jadwalPeriksa->id }}</td>
+                                    <td>{{ $jadwalPeriksa->hari }}</td>
+                                    {{-- - format('H:i') akan menampilkan waktu dalam format 24 jam, misalnya 14:30. --}}
+                                    <td>{{ \Carbon\Carbon::parse($jadwalPeriksa->jam_mulai)->format('H:i') }}</td>
+                                    <td>{{ \Carbon\Carbon::parse($jadwalPeriksa->jam_selesai)->format('H:i') }}</td>
                                     <td>
-                                        <a href="{{ route('admin.pasien.edit', $pasien->id) }}" class="btn btn-sm btn-warning">
-                                            <i class="fas fa-edit"></i> Edit
+                                        <a href="{{ route('jadwal-periksa.edit', $jadwalPeriksa->id) }}"
+                                            class="btn btn-sm btn-warning">
+                                            <i class="fas fa-edit"></i>Edit
                                         </a>
-
-                                        <form action="{{ route('admin.pasien.destroy', $pasien->id) }}" method="POST" style="display: inline-block;">
+                                        <form action="{{ route('jadwal-periksa.destroy', $jadwalPeriksa->id) }}"
+                                            method="POST" style="display: inline-block;">
                                             @csrf
                                             @method('DELETE')
                                             <button class="btn btn-sm btn-danger"
-                                                onclick="return confirm('Yakin ingin menghapus pasien ini ?')">
+                                                onclick="return confirm('Yakin ingin menghapus Data Jadwal Periksa ini ?')">
                                                 <i class="fas fa-trash"></i> Hapus
                                             </button>
                                         </form>
@@ -55,7 +55,7 @@
                             @empty
                                 <tr>
                                     <td class="text-center" colspan="7">
-                                        Belum ada pasien
+                                        Belum ada Jadwal Periksa
                                     </td>
                                 </tr>
                             @endforelse
@@ -67,7 +67,6 @@
     </div>
 
     <script>
-        // Auto close alert after 2 seconds
         setTimeout(() => {
             const alert = document.querySelector('.alert');
             if (alert) {

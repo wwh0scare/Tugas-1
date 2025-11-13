@@ -10,7 +10,7 @@ class PasienController extends Controller
 {
     public function index()
     {
-        $pasiens = User::where('role', 'pasien')->get();
+        $pasiens = User::where('role', 'pasien')->with('poli')->get();
         return view('admin.pasien.index', compact('pasiens'));
     }
 
@@ -23,20 +23,26 @@ class PasienController extends Controller
     {
         $request->validate([
             'nama' => 'required|string|max:255',
-            'no_ktp' => 'required|unique:users',
-            'email' => 'required|email|unique:users',
-            'password' => 'required|min:6'
+            'alamat' => 'required|string',
+            'no_ktp' => 'required|string|max:16|unique:users,no_ktp',
+            'no_hp' => 'required|string|max:15',
+            'email' => 'required|string|unique:users,email',
+            'password' => 'required|string|min:6',
         ]);
 
         User::create([
             'nama' => $request->nama,
+            'alamat' => $request->alamat,
             'no_ktp' => $request->no_ktp,
+            'no_hp' => $request->no_hp,
             'email' => $request->email,
             'password' => Hash::make($request->password),
-            'role' => 'pasien'
+            'role' => 'pasien',
         ]);
 
-        return redirect()->route('pasien.index')->with('success', 'Data pasien berhasil ditambahkan');
+        return redirect()->route('admin.pasien.index')
+            ->with('message', 'Data Pasien berhasil ditambah')
+            ->with('type', 'success');
     }
 
     public function edit(User $pasien)
@@ -48,13 +54,18 @@ class PasienController extends Controller
     {
         $request->validate([
             'nama' => 'required|string|max:255',
-            'no_ktp' => 'required|unique:users,no_ktp,' . $pasien->id,
-            'email' => 'required|email|unique:users,email,' . $pasien->id,
+            'alamat' => 'required|string',
+            'no_ktp' => 'required|string|max:16|unique:users,no_ktp,' . $pasien->id,
+            'no_hp' => 'required|string|max:15',
+            'email' => 'required|string|unique:users,email,' . $pasien->id,
+            'password' => 'nullable|string|min:6',
         ]);
 
         $updateData = [
             'nama' => $request->nama,
+            'alamat' => $request->alamat,
             'no_ktp' => $request->no_ktp,
+            'no_hp' => $request->no_hp,
             'email' => $request->email,
         ];
 
@@ -64,12 +75,17 @@ class PasienController extends Controller
 
         $pasien->update($updateData);
 
-        return redirect()->route('pasien.index')->with('success', 'Data pasien berhasil diperbarui');
+        return redirect()->route('admin.pasien.index')
+            ->with('message', 'Data Pasien berhasil diupdate')
+            ->with('type', 'success');
     }
 
     public function destroy(User $pasien)
     {
         $pasien->delete();
-        return redirect()->route('pasien.index')->with('success', 'Data pasien berhasil dihapus');
+
+        return redirect()->route('admin.pasien.index')
+            ->with('message', 'Data Pasien berhasil dihapus')
+            ->with('type', 'success');
     }
 }

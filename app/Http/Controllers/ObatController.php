@@ -21,15 +21,20 @@ class ObatController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'nama_obat' => 'required|string',
-            'kemasan' => 'required|string',
-            'harga' => 'required|integer'
+            'nama_obat' => 'required|string|max:255',
+            'kemasan'   => 'required|string|max:100',
+            'harga'     => 'required|integer|min:0',
         ]);
 
-        Obat::create($request->all());
+        Obat::create([
+            'nama_obat' => $request->nama_obat,
+            'kemasan'   => $request->kemasan,
+            'harga'     => $request->harga,
+        ]);
 
-        return redirect()->route('obat.index')
-            ->with(['message' => 'Data Obat Berhasil dibuat', 'type' => 'success']);
+        return redirect()->route('admin.obat.index')
+            ->with('message', 'Data Obat berhasil dibuat')
+            ->with('type', 'success');
     }
 
     public function edit($id)
@@ -41,16 +46,21 @@ class ObatController extends Controller
     public function update(Request $request, $id)
     {
         $request->validate([
-            'nama_obat' => 'required|string',
-            'kemasan' => 'nullable|string',
-            'harga' => 'required|integer'
+            'nama_obat' => 'required|string|max:255',
+            'kemasan'   => 'required|string|max:100',
+            'harga'     => 'required|integer|min:0',
         ]);
 
         $obat = Obat::findOrFail($id);
-        $obat->update($request->all());
+        $obat->update([
+            'nama_obat' => $request->nama_obat,
+            'kemasan'   => $request->kemasan,
+            'harga'     => $request->harga,
+        ]);
 
-        return redirect()->route('obat.index')
-            ->with(['message' => 'Data Obat Berhasil diedit', 'type' => 'success']);
+        return redirect()->route('admin.obat.index')
+            ->with('message', 'Data Obat berhasil diperbarui')
+            ->with('type', 'success');
     }
 
     public function destroy($id)
@@ -58,7 +68,8 @@ class ObatController extends Controller
         $obat = Obat::findOrFail($id);
         $obat->delete();
 
-        return redirect()->route('obat.index')
-            ->with(['message' => 'Data Obat Berhasil dihapus', 'type' => 'success']);
+        return redirect()->route('admin.obat.index')
+            ->with('message', 'Data Obat berhasil dihapus')
+            ->with('type', 'success');
     }
 }
