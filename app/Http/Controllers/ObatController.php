@@ -62,7 +62,7 @@ class ObatController extends Controller
             ->with('message', 'Data Obat berhasil diperbarui')
             ->with('type', 'success');
     }
-
+                                                                                                                                        
     public function destroy($id)
     {
         $obat = Obat::findOrFail($id);
